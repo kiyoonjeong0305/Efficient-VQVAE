@@ -1,0 +1,35 @@
+EXP_NAME: vqvae-dim-1
+
+SEED: 42
+
+DATA:
+  mvtec_ad_path: ./mvtec_anomaly_detection
+  mvtec_loco_path: ./mvtec_loco_anomaly_detection
+  output_dir: output/vqvae-dim-1
+
+TRAIN:
+  batch_size: 8
+  train_steps: 8750
+  accumulation_steps: 1
+  num_workers: 8
+
+EFFICIENTAD:
+  # small, medium
+  model_size: small 
+
+  # model_checkpoint/teacher_small.pth, model_checkpoint/teacher_medium.pth
+  weights: model_checkpoint/teacher_small.pth 
+
+  # Set to "none" to disable ImageNet pretraining penalty. 
+  # Or see README.md to download ImageNet and set to ImageNet path
+  imagenet_train_path: none 
+
+
+VQVAE:
+  n_hiddens: 128
+  n_residual_hiddens: 32
+  n_residual_layers: 2
+  embedding_dim: 64
+  n_embeddings: 512
+  beta: .25
+  latent_size: 1
