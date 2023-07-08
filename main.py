@@ -15,7 +15,9 @@ from common import get_autoencoder, get_pdn_small, get_pdn_medium, \
 from sklearn.metrics import roc_auc_score
 from models import VQVAE
 import yaml
+import sys
 
+sys.path.append('/workspace/Efficient-VQVAE/')
 
 # constants
 seed = 42
@@ -156,7 +158,11 @@ def run(cfg):
             teacher_output_st = (teacher_output_st - teacher_mean) / teacher_std
         student_output_st = student(image_st)[:, :out_channels]
         distance_st = (teacher_output_st - student_output_st) ** 2
-        d_hard = torch.quantile(distance_st, q=0.999)
+        
+        # d_hard = torch.quantile(distance_st, q=0.999)
+        
+        distance_st_flatten = distance_st.flatten()
+        d_hard = distance_st_flatten[torch.argsort(distance_st_flatten)[int(len(distance_st_flatten)*0.999)].item()]
         loss_hard = torch.mean(distance_st[distance_st >= d_hard])
 
         if image_penalty is not None:
@@ -347,7 +353,7 @@ def teacher_normalization(teacher, train_loader):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--yaml_config', type=str, default=None, help='exp config file')    
+    parser.add_argument('--yaml_config', type=str, default='/workspace/Efficient-VQVAE/config/medium-latent-1.yaml', help='exp config file')    
     parser.add_argument('-d', '--dataset', default='mvtec_ad',
                         choices=['mvtec_ad', 'mvtec_loco'])
     parser.add_argument('-s', '--subdataset', default='bottle',

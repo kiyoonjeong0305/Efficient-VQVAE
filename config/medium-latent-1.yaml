@@ -1,0 +1,34 @@
+EXP_NAME: medium-latent-1
+
+SEED: 42
+
+DATA:
+  mvtec_ad_path: ./mvtec_anomaly_detection
+  mvtec_loco_path: ./mvtec_loco_anomaly_detection
+  output_dir: output/medium-latent-1
+
+TRAIN:
+  batch_size: 32
+  train_steps: 2500
+  num_workers: 8
+
+EFFICIENTAD:
+  # small, medium
+  model_size: medium 
+
+  # model_checkpoint/teacher_small.pth, model_checkpoint/teacher_medium.pth
+  weights: model_checkpoint/teacher_medium.pth 
+
+  # Set to "none" to disable ImageNet pretraining penalty. 
+  # Or see README.md to download ImageNet and set to ImageNet path
+  imagenet_train_path: none 
+
+
+VQVAE:
+  n_hiddens: 128
+  n_residual_hiddens: 32
+  n_residual_layers: 2
+  embedding_dim: 64
+  n_embeddings: 512
+  beta: .25
+  latent_size: 1
