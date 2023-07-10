@@ -113,6 +113,7 @@ def run(cfg):
         penalty_loader_infinite = itertools.repeat(None)
 
     # create models
+    # Teacher, Studnent model 선언
     if cfg['EFFICIENTAD']['model_size'] == 'small':
         teacher = get_pdn_small(out_channels)
         student = get_pdn_small(2 * out_channels)
@@ -122,14 +123,16 @@ def run(cfg):
     else:
         raise Exception()
     state_dict = torch.load(cfg['EFFICIENTAD']['weights'], map_location='cpu')
+    
+    # 사전학습된 weight를 teacher에 load
     teacher.load_state_dict(state_dict)
     
-
+    # autoencoder 선언
     autoencoder = VQVAE(cfg['VQVAE']['n_hiddens'], cfg['VQVAE']['n_residual_hiddens'],
                             cfg['VQVAE']['n_residual_layers'], cfg['VQVAE']['n_embeddings'],
                             cfg['VQVAE']['embedding_dim'], cfg['VQVAE']['beta'], cfg['VQVAE']['latent_size'])
 
-    # teacher frozen
+    # teacher frozen, teacher의 output을 target으로 student와 autoencoder를 학습
     teacher.eval()
     student.train()
     autoencoder.train()
@@ -160,8 +163,8 @@ def run(cfg):
         student_output_st = student(image_st)[:, :out_channels]
         distance_st = (teacher_output_st - student_output_st) ** 2
         
+        # Hard Feature Loss
         # d_hard = torch.quantile(distance_st, q=0.999)
-        
         distance_st_flatten = distance_st.flatten()
         d_hard = distance_st_flatten[torch.argsort(distance_st_flatten)[int(len(distance_st_flatten)*0.999)].item()]
         loss_hard = torch.mean(distance_st[distance_st >= d_hard])
@@ -182,6 +185,11 @@ def run(cfg):
         distance_stae = (ae_output - student_output_ae)**2
         loss_ae = torch.mean(distance_ae)
         loss_stae = torch.mean(distance_stae)
+        
+        # loss_total = student와 teacher의 loss 
+        # + student와 autoencoder의 loss 
+        # + autoencoder와 teacher의 loss 
+        # + autoencoder의 embedding loss(codebook loss)
         loss_total = loss_st + loss_ae + loss_stae + loss_embedding
 
         optimizer.zero_grad()
