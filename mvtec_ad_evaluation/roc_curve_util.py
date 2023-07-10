@@ -3,6 +3,32 @@ Utility functions that compute a ROC curve and integrate its area from a set
 of anomaly maps and corresponding ground truth classification labels.
 """
 import numpy as np
+from sklearn.metrics import roc_auc_score
+
+
+def compute_pixel_auroc(
+        anomaly_maps,
+        ground_truth_labels):
+
+    assert len(anomaly_maps) == len(ground_truth_labels)
+
+    # Compute the anomaly score for each anomaly map.
+    anomaly_scores = anomaly_maps
+    num_scores = len(anomaly_maps)
+    score = []
+    # Sort samples by anomaly score. Keep track of ground truth label.
+    sorted_samples = \
+        (zip(anomaly_scores, ground_truth_labels))
+
+    for i, (current_score, label) in enumerate(sorted_samples):
+        
+        try:
+            score.append(roc_auc_score(label.flatten()/255, current_score.flatten()).item())
+        except:
+            pass
+        
+    return score
+
 
 
 def compute_classification_roc(

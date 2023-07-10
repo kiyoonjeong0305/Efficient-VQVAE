@@ -110,6 +110,33 @@ class Encoder(nn.Module):
                         stride=stride-1, padding=1),
                 ResidualStack(
                 h_dim, h_dim, res_h_dim, n_res_layers)
+            )
+                
+        elif latent_size == 8:
+                
+            self.conv_stack = nn.Sequential(
+                nn.Conv2d(in_dim, h_dim // 2, kernel_size=kernel,
+                        stride=stride, padding=1),
+                nn.ReLU(),
+                nn.Conv2d(h_dim // 2, h_dim, kernel_size=kernel,
+                        stride=stride, padding=1),
+                nn.ReLU(),
+                nn.Conv2d(h_dim, h_dim, kernel_size=kernel,
+                        stride=stride, padding=1),
+                nn.ReLU(),
+                nn.Conv2d(h_dim, h_dim, kernel_size=kernel,
+                        stride=stride, padding=1),
+                nn.ReLU(),
+                nn.Conv2d(h_dim, h_dim, kernel_size=kernel,
+                        stride=stride, padding=1),
+                nn.ReLU(),
+                nn.Conv2d(h_dim, h_dim, kernel_size=kernel-1,
+                        stride=stride-1, padding=1),
+                nn.ReLU(),
+                nn.Conv2d(h_dim, h_dim, kernel_size=kernel-1,
+                        stride=stride-1, padding=1),
+                ResidualStack(
+                h_dim, h_dim, res_h_dim, n_res_layers)
                 )
 
     def forward(self, x):

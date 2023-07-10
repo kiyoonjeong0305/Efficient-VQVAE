@@ -124,10 +124,8 @@ def run(cfg):
     state_dict = torch.load(cfg['EFFICIENTAD']['weights'], map_location='cpu')
     teacher.load_state_dict(state_dict)
     
+    autoencoder = get_autoencoder()
 
-    autoencoder = VQVAE(cfg['VQVAE']['n_hiddens'], cfg['VQVAE']['n_residual_hiddens'],
-                            cfg['VQVAE']['n_residual_layers'], cfg['VQVAE']['n_embeddings'],
-                            cfg['VQVAE']['embedding_dim'], cfg['VQVAE']['beta'], cfg['VQVAE']['latent_size'])
 
     # teacher frozen
     teacher.eval()
@@ -173,7 +171,7 @@ def run(cfg):
         else:
             loss_st = loss_hard
 
-        loss_embedding, ae_output, perplexity = autoencoder(image_ae)
+        ae_output = autoencoder(image_ae)
         with torch.no_grad():
             teacher_output_ae = teacher(image_ae)
             teacher_output_ae = (teacher_output_ae - teacher_mean) / teacher_std
@@ -182,7 +180,7 @@ def run(cfg):
         distance_stae = (ae_output - student_output_ae)**2
         loss_ae = torch.mean(distance_ae)
         loss_stae = torch.mean(distance_stae)
-        loss_total = loss_st + loss_ae + loss_stae + loss_embedding
+        loss_total = loss_st + loss_ae + loss_stae
 
         optimizer.zero_grad()
         loss_total.backward()
@@ -289,7 +287,7 @@ def predict(image, teacher, student, autoencoder, teacher_mean, teacher_std,
     teacher_output = teacher(image)
     teacher_output = (teacher_output - teacher_mean) / teacher_std
     student_output = student(image)
-    _, autoencoder_output, _ = autoencoder(image)
+    autoencoder_output = autoencoder(image)
     map_st = torch.mean((teacher_output - student_output[:, :out_channels])**2,
                         dim=1, keepdim=True)
     map_ae = torch.mean((autoencoder_output -

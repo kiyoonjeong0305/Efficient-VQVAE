@@ -1,4 +1,4 @@
-subdatasets=( medium-latent-1 medium-latent-2 medium-latent-2-64)
+subdatasets=( medium-latent-2-128 medium-latent-2-256 medium-latent-2-n_res_h-64 )
 
 # Train
 for subdataset in ${subdatasets[@]}

@@ -1,11 +1,11 @@
-subdatasets=( bottle cable capsule carpet grid hazelnut leather metal_nut pill screw tile toothbrush transistor wood zipper)
+subdatasets=( tile toothbrush transistor wood zipper)
 
 # Train
 for subdataset in ${subdatasets[@]}
 do
     CUDA_VISIBLE_DEVICES=3 \
     python main.py \
-    --yaml_config /workspace/Efficient-VQVAE/config/medium-latent-2-n_res_h-64.yaml \
+    --yaml_config /workspace/Efficient-VQVAE/config/small-latent-8.yaml \
     --dataset mvtec_ad \
     --subdataset ${subdataset} \
 

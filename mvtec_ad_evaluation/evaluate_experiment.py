@@ -10,11 +10,12 @@ import argparse
 import numpy as np
 from PIL import Image
 from tqdm import tqdm
+from sklearn.metrics import roc_auc_score
 
 import generic_util as util
 from pro_curve_util import compute_pro
-from roc_curve_util import compute_classification_roc
-
+from roc_curve_util import compute_classification_roc, compute_pixel_auroc
+import pdb
 
 def parse_user_arguments():
     """Parse user arguments for the evaluation of a method on the MVTec AD
@@ -27,15 +28,18 @@ def parse_user_arguments():
 
     parser.add_argument('--anomaly_maps_dir',
                         required=True,
+                        default="./output/small-latent-8/anomaly_maps/mvtec_ad/",
                         help="""Path to the directory that contains the anomaly
                                 maps of the evaluated method.""")
 
     parser.add_argument('--dataset_base_dir',
                         required=True,
+                        default='./mvtec_anomaly_detection/',
                         help="""Path to the directory that contains the dataset
                                 images of the MVTec AD dataset.""")
 
     parser.add_argument('--output_dir',
+                        default="./output/small-latent-8/metrics/mvtec_ad/",
                         help="""Path to the directory to store evaluation
                                 results. If no output directory is specified,
                                 the results are not written to drive.""")
@@ -153,11 +157,22 @@ def calculate_au_pro_au_roc(gt_filenames,
         else:
             ground_truth.append(np.zeros(prediction.shape))
 
+    # Compute the Pixel-level AUROC
+    pixel_auroc = compute_pixel_auroc(
+        anomaly_maps=predictions,
+        ground_truth_labels=ground_truth)
+    # print(pixel_auroc)
+    pixel_auroc_mean = np.mean(pixel_auroc).item()
+    print(f"Pixel AU-ROC: {pixel_auroc_mean}")
+    
+    
     # Compute the PRO curve.
     pro_curve = compute_pro(
         anomaly_maps=predictions,
         ground_truth_maps=ground_truth)
+    
 
+    
     # Compute the area under the PRO curve.
     au_pro = util.trapezoid(
         pro_curve[0], pro_curve[1], x_max=integration_limit)
@@ -180,7 +195,7 @@ def calculate_au_pro_au_roc(gt_filenames,
     print(f"Image-level classification AU-ROC: {au_roc}")
 
     # Return the evaluation metrics.
-    return au_pro, au_roc, pro_curve, roc_curve
+    return au_pro, au_roc, pro_curve, roc_curve, pixel_auroc_mean
 
 
 def main():
@@ -196,47 +211,53 @@ def main():
     # Keep track of the mean performance measures.
     au_pros = []
     au_rocs = []
+    pixel_aurocs = []
 
     # Evaluate each dataset object separately.
     for obj in args.evaluated_objects:
-        try:
-            print(f"=== Evaluate {obj} ===")
-            evaluation_dict[obj] = dict()
+        # try:
+        print(f"=== Evaluate {obj} ===")
+        evaluation_dict[obj] = dict()
 
-            # Parse the filenames of all ground truth and corresponding anomaly
-            # images for this object.
-            gt_filenames, prediction_filenames = \
-                parse_dataset_files(
-                    object_name=obj,
-                    dataset_base_dir=args.dataset_base_dir,
-                    anomaly_maps_dir=args.anomaly_maps_dir)
+        # Parse the filenames of all ground truth and corresponding anomaly
+        # images for this object.
+        gt_filenames, prediction_filenames = \
+            parse_dataset_files(
+                object_name=obj,
+                dataset_base_dir=args.dataset_base_dir,
+                anomaly_maps_dir=args.anomaly_maps_dir)
 
-            # Calculate the PRO and ROC curves.
-            au_pro, au_roc, pro_curve, roc_curve = \
-                calculate_au_pro_au_roc(
-                    gt_filenames,
-                    prediction_filenames,
-                    args.pro_integration_limit)
+        # Calculate the PRO and ROC curves.
+        au_pro, au_roc, pro_curve, roc_curve, pixel_auroc_mean = \
+            calculate_au_pro_au_roc(
+                gt_filenames,
+                prediction_filenames,
+                args.pro_integration_limit)
 
-            evaluation_dict[obj]['au_pro'] = au_pro
-            evaluation_dict[obj]['classification_au_roc'] = au_roc
+        evaluation_dict[obj]['au_pro'] = au_pro
+        evaluation_dict[obj]['classification_au_roc'] = au_roc
+        evaluation_dict[obj]['pixel_au_roc'] = pixel_auroc_mean
 
-            evaluation_dict[obj]['classification_roc_curve_fpr'] = roc_curve[0]
-            evaluation_dict[obj]['classification_roc_curve_tpr'] = roc_curve[1]
+        evaluation_dict[obj]['classification_roc_curve_fpr'] = roc_curve[0]
+        evaluation_dict[obj]['classification_roc_curve_tpr'] = roc_curve[1]
 
-            # Keep track of the mean performance measures.
-            au_pros.append(au_pro)
-            au_rocs.append(au_roc)
+        # Keep track of the mean performance measures.
+        au_pros.append(au_pro)
+        au_rocs.append(au_roc)
+        pixel_aurocs.append(pixel_auroc_mean)
 
-            print('\n')
+        print('\n')
             
-        except:
-            print(f'Object: {obj} not found.')
+        # except:
+        #     print(f'Object: {obj} not found.')
             
     # Compute the mean of the performance measures.
     evaluation_dict['mean_au_pro'] = np.mean(au_pros).item()
+    
     evaluation_dict['mean_classification_au_roc'] = np.mean(au_rocs).item()
 
+    evaluation_dict['mean_pixel_au_roc'] = np.mean(pixel_aurocs).item()
+    
     # If required, write evaluation metrics to drive.
     if args.output_dir is not None:
         makedirs(args.output_dir, exist_ok=True)

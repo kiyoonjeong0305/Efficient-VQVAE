@@ -45,7 +45,7 @@ def extract_table_rows(metrics_folder, metric):
           extracted metrics for each evaluated object as well as the mean
           performance.
     """
-    assert metric in ['au_pro', 'classification_au_roc']
+    assert metric in ['au_pro', 'classification_au_roc', 'pixel_au_roc']
 
     # Iterate each experiment.
     exp_ids = os.listdir(metrics_folder)
@@ -94,6 +94,7 @@ def main():
 
     # Create the table rows. One row for each experiment.
     rows_pro = extract_table_rows(args.metrics_folder, 'au_pro')
+    rows_pixel_auroc = extract_table_rows(args.metrics_folder, 'pixel_au_roc')
     rows_roc = extract_table_rows(args.metrics_folder, 'classification_au_roc')
 
     # Print localization result table.
@@ -101,6 +102,13 @@ def main():
     print(
         tabulate(
             rows_pro, headers=['Experiment'] + OBJECT_NAMES + ['Mean'],
+            tablefmt='fancy_grid'))
+    
+    # Print pixel auroc result table.
+    print("\nPIXEL AU ROC (segmentation)")
+    print(
+        tabulate(
+            rows_pixel_auroc, headers=['Experiment'] + OBJECT_NAMES + ['Mean'],
             tablefmt='fancy_grid'))
 
     # Print classification result table.

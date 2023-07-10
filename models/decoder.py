@@ -19,50 +19,85 @@ class Decoder(nn.Module):
 
     """
 
-    def __init__(self, in_dim, h_dim, n_res_layers, res_h_dim):
+    def __init__(self, in_dim, h_dim, n_res_layers, res_h_dim, latent_size):
         super(Decoder, self).__init__()
         kernel = 4
         stride = 2
         out_channels = 384
 
-        self.inverse_conv_stack = nn.Sequential(
-                nn.Upsample(size=4, mode='bilinear'),
-                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
-                        padding=2),
-                nn.ReLU(inplace=True),
-                nn.Dropout(0.2),
-                nn.Upsample(size=8, mode='bilinear'),
-                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
-                        padding=2),
-                nn.ReLU(inplace=True),
-                nn.Dropout(0.2),
-                nn.Upsample(size=15, mode='bilinear'),
-                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
-                        padding=2),
-                nn.ReLU(inplace=True),
-                nn.Dropout(0.2),
-                nn.Upsample(size=32, mode='bilinear'),
-                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
-                        padding=2),
-                nn.ReLU(inplace=True),
-                nn.Dropout(0.2),
-                nn.Upsample(size=63, mode='bilinear'),
-                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
-                        padding=2),
-                nn.ReLU(inplace=True),
-                nn.Dropout(0.2),
-                nn.Upsample(size=127, mode='bilinear'),
-                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
-                        padding=2),
-                nn.ReLU(inplace=True),
-                nn.Dropout(0.2),
-                nn.Upsample(size=56, mode='bilinear'),
-                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1,
-                        padding=1),
-                nn.ReLU(inplace=True),
-                nn.Conv2d(in_channels=64, out_channels=384, kernel_size=3,
-                        stride=1, padding=1)
-                )
+        if latent_size == 8:
+                self.inverse_conv_stack = nn.Sequential(
+                        nn.Upsample(size=8, mode='bilinear'),
+                        nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
+                                padding=2),
+                        nn.ReLU(inplace=True),
+                        nn.Dropout(0.2),
+                        nn.Upsample(size=15, mode='bilinear'),
+                        nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
+                                padding=2),
+                        nn.ReLU(inplace=True),
+                        nn.Dropout(0.2),
+                        nn.Upsample(size=32, mode='bilinear'),
+                        nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
+                                padding=2),
+                        nn.ReLU(inplace=True),
+                        nn.Dropout(0.2),
+                        nn.Upsample(size=63, mode='bilinear'),
+                        nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
+                                padding=2),
+                        nn.ReLU(inplace=True),
+                        nn.Dropout(0.2),
+                        nn.Upsample(size=127, mode='bilinear'),
+                        nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
+                                padding=2),
+                        nn.ReLU(inplace=True),
+                        nn.Dropout(0.2),
+                        nn.Upsample(size=56, mode='bilinear'),
+                        nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1,
+                                padding=1),
+                        nn.ReLU(inplace=True),
+                        nn.Conv2d(in_channels=64, out_channels=384, kernel_size=3,
+                                stride=1, padding=1)
+                        )
+        else:
+                self.inverse_conv_stack = nn.Sequential(
+                        nn.Upsample(size=4, mode='bilinear'),
+                        nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
+                                padding=2),
+                        nn.ReLU(inplace=True),
+                        nn.Dropout(0.2),
+                        nn.Upsample(size=8, mode='bilinear'),
+                        nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
+                                padding=2),
+                        nn.ReLU(inplace=True),
+                        nn.Dropout(0.2),
+                        nn.Upsample(size=15, mode='bilinear'),
+                        nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
+                                padding=2),
+                        nn.ReLU(inplace=True),
+                        nn.Dropout(0.2),
+                        nn.Upsample(size=32, mode='bilinear'),
+                        nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
+                                padding=2),
+                        nn.ReLU(inplace=True),
+                        nn.Dropout(0.2),
+                        nn.Upsample(size=63, mode='bilinear'),
+                        nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
+                                padding=2),
+                        nn.ReLU(inplace=True),
+                        nn.Dropout(0.2),
+                        nn.Upsample(size=127, mode='bilinear'),
+                        nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=1,
+                                padding=2),
+                        nn.ReLU(inplace=True),
+                        nn.Dropout(0.2),
+                        nn.Upsample(size=56, mode='bilinear'),
+                        nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1,
+                                padding=1),
+                        nn.ReLU(inplace=True),
+                        nn.Conv2d(in_channels=64, out_channels=384, kernel_size=3,
+                                stride=1, padding=1)
+                        )
 
     def forward(self, x):
         return self.inverse_conv_stack(x)
