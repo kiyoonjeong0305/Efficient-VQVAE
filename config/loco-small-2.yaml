@@ -1,23 +1,23 @@
-EXP_NAME: medium-default
+EXP_NAME: loco-small-2
 
 SEED: 42
 
 DATA:
   mvtec_ad_path: ./mvtec_anomaly_detection
   mvtec_loco_path: ./mvtec_loco_anomaly_detection
-  output_dir: output/medium-default
+  output_dir: output/loco-small-2
 
 TRAIN:
-  batch_size: 1
+  batch_size: 32
   train_steps: 2500
   num_workers: 8
 
 EFFICIENTAD:
   # small, medium
-  model_size: medium 
+  model_size: small 
 
   # model_checkpoint/teacher_small.pth, model_checkpoint/teacher_medium.pth
-  weights: model_checkpoint/teacher_medium.pth 
+  weights: model_checkpoint/teacher_small.pth 
 
   # Set to "none" to disable ImageNet pretraining penalty. 
   # Or see README.md to download ImageNet and set to ImageNet path
@@ -31,4 +31,4 @@ VQVAE:
   embedding_dim: 64
   n_embeddings: 512
   beta: .25
-  latent_size: 1
+  latent_size: 2

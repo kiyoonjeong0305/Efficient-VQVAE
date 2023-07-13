@@ -5,10 +5,10 @@ SEED: 42
 DATA:
   mvtec_ad_path: ./mvtec_anomaly_detection
   mvtec_loco_path: ./mvtec_loco_anomaly_detection
-  output_dir: output/medium-default
+  output_dir: output/loco-medium-default
 
 TRAIN:
-  batch_size: 1
+  batch_size: 32
   train_steps: 2500
   num_workers: 8
 

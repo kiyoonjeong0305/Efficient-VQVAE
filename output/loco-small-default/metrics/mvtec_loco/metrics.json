@@ -1,0 +1,22 @@
+{
+    "classification": {
+        "auc_roc": {
+            "logical_anomalies": 0.9777466542172424,
+            "mean": 0.9694961644788636,
+            "structural_anomalies": 0.9612456747404847
+        }
+    },
+    "localization": {
+        "auc_spro": {
+            "logical_anomalies": {
+                "0.3": 0.9532368474679073
+            },
+            "mean": {
+                "0.3": 0.9456434996952496
+            },
+            "structural_anomalies": {
+                "0.3": 0.9380501519225919
+            }
+        }
+    }
+}

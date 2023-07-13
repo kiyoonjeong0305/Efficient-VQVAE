@@ -22,6 +22,11 @@
 # doc/**/*.pdf
 
 mvtec_anomaly_detection/
+mvtec_loco_anomaly_detection/
+
+mvtec_ad_evaluation/
+mvtec_loco_ad_evalutaion/
 
 output/*/trainings/
 output/*/anomaly_maps/
+

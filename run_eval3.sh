@@ -1,4 +1,4 @@
-subdatasets=( medium-latent-4 medium-n_embeddings-1024 small-latent-2 small-n_hiddens-128-n_residual_hiddens-64 )
+subdatasets=( medium-default )
 
 # Train
 for subdataset in ${subdatasets[@]}
